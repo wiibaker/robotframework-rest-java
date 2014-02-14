@@ -21,7 +21,7 @@ your pom.xml:
 	</dependency>
 	
 	<dependency>
-		<groupId>org.robotframework.restlib</groupId>
+		<groupId>org.wuokko.robot</groupId>
 		<artifactId>robotframework-rest-java</artifactId>
 		<version>0.1.0</version>
 	</dependency>
