@@ -9,7 +9,7 @@
 	<groupId>org.wuokko.robot</groupId>
 	<artifactId>robotframework-rest-java</artifactId>
 	<packaging>jar</packaging>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.1-SNAPSHOT</version>
 	<name>robotframework-rest-java</name>
 	<url>https://github.com/wiibaker/robotframework-rest-java</url>
 	<description>Robot Framework Java library to test REST apis.</description>
