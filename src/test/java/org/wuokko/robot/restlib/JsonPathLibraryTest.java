@@ -140,6 +140,26 @@ public class JsonPathLibraryTest {
     }
     
     @Test
+    public void testShouldHaveElementCountString() throws IOException {
+
+        String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
+
+        boolean match = lib.shouldHaveElementCount(source, 1, "$.store.bicycle.color");
+
+        assertTrue("The element count should have matched", match);
+    }
+    
+    @Test
+    public void testShouldHaveElementCountStringWrongCount() throws IOException {
+
+        String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
+
+        boolean match = lib.shouldHaveElementCount(source, 2, "$.store.bicycle.color");
+
+        assertFalse("The element count should not have matched", match);
+    }
+    
+    @Test
     public void testFindJsonElement() throws IOException {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));

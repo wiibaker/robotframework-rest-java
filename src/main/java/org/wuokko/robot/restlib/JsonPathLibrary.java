@@ -76,6 +76,7 @@ public class JsonPathLibrary {
         return elements;
     }
 
+    @SuppressWarnings("unchecked")
     @RobotKeyword
     public boolean shouldHaveElementCount(String source, Integer count, String jsonPath) {
         boolean match = false;
@@ -86,21 +87,36 @@ public class JsonPathLibrary {
 
         List<Object> elements = null;
 
+        Object object = null;
+
         try {
 
-            elements = JsonPath.read(json, jsonPath);
+            object = JsonPath.read(json, jsonPath);
 
         } catch (PathNotFoundException e) {
             e.printStackTrace();
         }
+        if (object != null) {
+            // TODO: Find a way to do this without suppressing the warning
+            if (object instanceof List<?>) {
+                elements = (List<Object>) object;
+                if (CollectionUtils.isNotEmpty(elements)) {
+                    match = (elements.size() == count);
 
-        if (CollectionUtils.isNotEmpty(elements)) {
-            match = (elements.size() == count);
+                    if (!match) {
+                        System.out.println("*ERROR* Element counts did not match. Expected '" + count + "', got '" + elements.size() + "'");
+                    }
 
-            if (!match) {
-                System.out.println("*ERROR* Element counts did not match. Expected '" + count + "', got '" + elements.size() + "'");
+                } else {
+                    // In practice, it's impossible to end here.
+                    System.out.println("*ERROR* Could not find elements from '" + jsonPath + "'");
+                }
+            } else if (count == 1) {
+                System.out.println("*DEBUG* Found 1 item as expected from '" + jsonPath + "'");
+                match = true;
+            } else {
+                System.out.println("*ERROR* Found 1 item, but expected '" + count + "'");
             }
-
         } else {
             System.out.println("*ERROR* Could not find elements from '" + jsonPath + "'");
         }
