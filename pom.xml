@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -9,7 +8,7 @@
 	<groupId>org.wuokko.robot</groupId>
 	<artifactId>robotframework-rest-java</artifactId>
 	<packaging>jar</packaging>
-	<version>0.2-SNAPSHOT</version>
+	<version>0.1.1</version>
 	<name>robotframework-rest-java</name>
 	<url>https://github.com/wiibaker/robotframework-rest-java</url>
 	<description>Robot Framework Java library to test REST apis.</description>
@@ -26,7 +25,7 @@
 		<connection>scm:git:git@github.com:wiibaker/robotframework-rest-java.git</connection>
 		<url>scm:git:git@github.com:wiibaker/robotframework-rest-java.git</url>
 		<developerConnection>scm:git:git@github.com:wiibaker/robotframework-rest-java.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>robotframework-rest-java-0.1.1</tag>
 	</scm>
 
 	<developers>
