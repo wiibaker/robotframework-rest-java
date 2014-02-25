@@ -26,6 +26,9 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.wuokko.robot.restlib.exception.JsonElementNotFoundException;
+import org.wuokko.robot.restlib.exception.JsonNotEqualException;
+import org.wuokko.robot.restlib.exception.JsonNotValidException;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ Request.class })
