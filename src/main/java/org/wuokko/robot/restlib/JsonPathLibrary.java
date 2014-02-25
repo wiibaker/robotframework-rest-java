@@ -22,12 +22,12 @@ public class JsonPathLibrary {
     private Diff diff = new JsonDiff();
 
     @RobotKeyword
-    public boolean jsonShouldBeEqual(String from, String to) {
+    public boolean jsonShouldBeEqual(String from, String to) throws Exception {
         return jsonShouldBeEqual(from, to, false);
     }
 
     @RobotKeyword
-    public boolean jsonShouldBeEqual(String from, String to, boolean useExactMatch) {
+    public boolean jsonShouldBeEqual(String from, String to, boolean useExactMatch) throws Exception {
         System.out.println("*DEBUG* Comparing JSON sources");
 
         boolean equal = false;
@@ -43,42 +43,59 @@ public class JsonPathLibrary {
                 } else {
                     System.out.println("*ERROR* JSON strings are NOT equal by exact compare");
                     equal = false;
+                    throw new JsonNotEqualException("JSON strings are NOT equal by exact compare");
                 }
             } else {
                 equal = diff.compare(fromJson, toJson);
+                if (!equal) {
+                    throw new JsonNotEqualException("JSON strings are NOT equal by compare");
+                }
             }
         } else {
             System.out.println("*ERROR* Either from or to JSON was empty");
+            throw new JsonNotValidException("JSON strings are NOT equal by compare");
         }
 
         return equal;
     }
 
     @RobotKeyword
-    public Object findJsonElement(String source, String jsonPath) {
+    public Object findJsonElement(String source, String jsonPath) throws Exception {
         System.out.println("*DEBUG* Reading jsonPath: " + jsonPath);
 
         String json = readSource(source);
 
-        Object value = JsonPath.read(json, jsonPath);
+        Object value;
 
+        try {
+            value = JsonPath.read(json, jsonPath);
+         } catch(PathNotFoundException e) {
+             throw new JsonElementNotFoundException("Path '" + jsonPath + "' was not found in JSON");
+         }
+        
         return value;
     }
 
     @RobotKeyword
-    public List<Object> findJsonElementList(String source, String jsonPath) {
+    public List<Object> findJsonElementList(String source, String jsonPath) throws Exception {
         System.out.println("*DEBUG* Reading jsonPath: " + jsonPath);
 
         String json = readSource(source);
 
-        List<Object> elements = JsonPath.read(json, jsonPath);
+        List<Object> elements;
+        
+        try {
+           elements = JsonPath.read(json, jsonPath);
+        } catch(PathNotFoundException e) {
+            throw new JsonElementNotFoundException("Path '" + jsonPath + "' was not found in JSON");
+        }
 
         return elements;
     }
 
     @SuppressWarnings("unchecked")
     @RobotKeyword
-    public boolean shouldHaveElementCount(String source, Integer count, String jsonPath) {
+    public boolean shouldHaveElementCount(String source, Integer count, String jsonPath) throws Exception {
         boolean match = false;
 
         System.out.println("*DEBUG* Reading jsonPath: " + jsonPath);
@@ -94,7 +111,7 @@ public class JsonPathLibrary {
             object = JsonPath.read(json, jsonPath);
 
         } catch (PathNotFoundException e) {
-            e.printStackTrace();
+            throw new JsonElementNotFoundException("Path '" + jsonPath + "' was not found in JSON");
         }
         if (object != null) {
             // TODO: Find a way to do this without suppressing the warning
@@ -105,20 +122,24 @@ public class JsonPathLibrary {
 
                     if (!match) {
                         System.out.println("*ERROR* Element counts did not match. Expected '" + count + "', got '" + elements.size() + "'");
+                        throw new JsonNotEqualException("Element counts did not match. Expected '" + count + "', got '" + elements.size() + "'");
                     }
 
                 } else {
                     // In practice, it's impossible to end here.
                     System.out.println("*ERROR* Could not find elements from '" + jsonPath + "'");
+                    throw new JsonElementNotFoundException("Could not find elements from '" + jsonPath + "'");
                 }
             } else if (count == 1) {
                 System.out.println("*DEBUG* Found 1 item as expected from '" + jsonPath + "'");
                 match = true;
             } else {
                 System.out.println("*ERROR* Found 1 item, but expected '" + count + "'");
+                throw new JsonElementNotFoundException("Found 1 item, but expected '" + count + "'");
             }
         } else {
             System.out.println("*ERROR* Could not find elements from '" + jsonPath + "'");
+            throw new JsonElementNotFoundException("Could not find elements from '" + jsonPath + "'");
         }
 
         return match;

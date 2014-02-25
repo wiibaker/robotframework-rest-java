@@ -2,7 +2,6 @@ package org.wuokko.robot.restlib;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -28,10 +27,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.jayway.jsonpath.PathNotFoundException;
-
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Request.class})
+@PrepareForTest({ Request.class })
 public class JsonPathLibraryTest {
 
     JsonPathLibrary lib = new JsonPathLibrary();
@@ -39,6 +36,8 @@ public class JsonPathLibraryTest {
     @Before
     public void setUp() throws Exception {
         PowerMockito.mockStatic(Request.class);
+        System.setProperty("use.uri.cache", "true");
+        lib = new JsonPathLibrary();
     }
 
     @Test
@@ -71,7 +70,7 @@ public class JsonPathLibraryTest {
 
         assertEquals("The returned JSON should be as expected", expected, json);
     }
-    
+
     @Test
     public void testReadHttpUrlSource() throws IOException {
 
@@ -79,38 +78,38 @@ public class JsonPathLibraryTest {
 
         String url = "http://example.com/test.json";
 
-        Request mockRequest = mock(Request.class, RETURNS_DEEP_STUBS); 
-        
+        Request mockRequest = mock(Request.class, RETURNS_DEEP_STUBS);
+
         PowerMockito.when(Request.Get(any(URI.class))).thenReturn(mockRequest);
         Mockito.when(mockRequest.connectTimeout(anyInt()).socketTimeout(anyInt()).execute().returnContent().asString()).thenReturn(expected);
-        
+
         String json = lib.readSource(url);
 
         assertNotNull("The json should not be null", json);
 
         assertEquals("The returned JSON should be as expected", expected, json);
     }
-    
+
     @Test
     public void testReadNullSource() throws IOException {
 
         String json = lib.readSource(null);
 
-        assertNull("The json should not null", json);
-        
+        assertNull("The json should be null", json);
+
     }
-    
+
     @Test
     public void testReadEmptySource() throws IOException {
 
         String json = lib.readSource("");
 
-        assertNull("The json should not null", json);
-        
+        assertNull("The json should be null", json);
+
     }
 
     @Test
-    public void testShouldHaveElementCount() throws IOException {
+    public void testShouldHaveElementCount() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
@@ -118,29 +117,27 @@ public class JsonPathLibraryTest {
 
         assertTrue("The element count should have matched", match);
     }
-    
-    @Test
-    public void testShouldHaveElementCountNotFound() throws IOException {
+
+    @Test(expected = JsonElementNotFoundException.class)
+    public void testShouldHaveElementCountNotFound() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
-        boolean match = lib.shouldHaveElementCount(source, 2, "$.foo.bar[*]");
+        lib.shouldHaveElementCount(source, 2, "$.foo.bar[*]");
 
-        assertFalse("The element count should not have matched", match);
     }
-    
-    @Test
-    public void testShouldHaveElementCountNoMatch() throws IOException {
+
+    @Test(expected = JsonNotEqualException.class)
+    public void testShouldHaveElementCountNoMatch() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
-        boolean match = lib.shouldHaveElementCount(source, 4, "$.store.book[*]");
+        lib.shouldHaveElementCount(source, 4, "$.store.book[*]");
 
-        assertFalse("The element count should not have matched", match);
     }
-    
+
     @Test
-    public void testShouldHaveElementCountString() throws IOException {
+    public void testShouldHaveElementCountString() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
@@ -148,124 +145,136 @@ public class JsonPathLibraryTest {
 
         assertTrue("The element count should have matched", match);
     }
-    
-    @Test
-    public void testShouldHaveElementCountStringWrongCount() throws IOException {
+
+    @Test(expected = JsonElementNotFoundException.class)
+    public void testShouldHaveElementCountStringWrongCount() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
-        boolean match = lib.shouldHaveElementCount(source, 2, "$.store.bicycle.color");
+        lib.shouldHaveElementCount(source, 2, "$.store.bicycle.color");
 
-        assertFalse("The element count should not have matched", match);
     }
-    
+
     @Test
-    public void testFindJsonElement() throws IOException {
+    public void testFindJsonElement() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
         String expected = "reference";
-        
+
         Object element = lib.findJsonElement(source, "$.store.book[0].category");
 
         assertEquals("The elements should be equal", expected, element);
     }
-    
+
     @Test
-    public void testFindJsonElementNotFound() throws IOException {
+    public void testFindJsonElementNotFound() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
-        
+
         Object element = lib.findJsonElement(source, "$.store.book[0].foo");
 
         assertNull("The element should be null", element);
     }
     
+    @Test(expected = JsonElementNotFoundException.class)
+    public void testFindJsonElementPathNotFound() throws Exception {
+
+        String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
+
+        lib.findJsonElement(source, "$.store.foo[0].bar");
+   }
+
     @Test
-    public void testFindJsonElementList() throws IOException {
+    public void testFindJsonElementList() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
         List<String> expected = Arrays.asList("reference", "fiction");
-        
+
         List<Object> element = lib.findJsonElementList(source, "$.store.book[*].category");
 
         assertEquals("The elements should be equal", expected, element);
     }
-    
+
     @Test
-    public void testFindJsonElementListNotFound() throws IOException {
+    public void testFindJsonElementListNotFound() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
-        
+
         List<Object> element = lib.findJsonElementList(source, "$.store.book[*].foo");
 
         assertArrayEquals("The element list should be empty", Collections.emptyList().toArray(), element.toArray());
     }
-    
-    @Test(expected = PathNotFoundException.class)
-    public void testFindJsonElementListPathNotFound() throws IOException {
+
+    @Test(expected = JsonElementNotFoundException.class)
+    public void testFindJsonElementListPathNotFound() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
-        
-        List<Object> element = lib.findJsonElementList(source, "$.store.foo[*]");
 
-        assertArrayEquals("The element list should be empty", Collections.emptyList().toArray(), element.toArray());
-    }
-    
+        lib.findJsonElementList(source, "$.store.foo[*]");
+   }
+
     @Test
-    public void testJsonShouldBeEqual() throws IOException {
+    public void testJsonShouldBeEqual() throws Exception {
 
         String from = "{foo: bar}";
         String to = "{foo: bar}";
-        
+
         boolean equal = lib.jsonShouldBeEqual(from, to);
 
         assertTrue("The elements should be equal", equal);
     }
-    
-    @Test
-    public void testJsonShouldBeEqualNoMatch() throws IOException {
+
+    @Test(expected = JsonNotEqualException.class)
+    public void testJsonShouldBeEqualNoMatch() throws Exception {
 
         String from = "{foo: bar}";
         String to = "{foo: xyz}";
-        
-        boolean equal = lib.jsonShouldBeEqual(from, to);
 
-        assertFalse("The elements should NOT be equal", equal);
-        
-        equal = lib.jsonShouldBeEqual("", "");
+        lib.jsonShouldBeEqual(from, to);
 
-        assertFalse("The elements should NOT be equal", equal);
-        
-        equal = lib.jsonShouldBeEqual(null, null);
-
-        assertFalse("The elements should NOT be equal", equal);
-        
-        equal = lib.jsonShouldBeEqual(from, null);
-
-        assertFalse("The elements should NOT be equal", equal);
     }
-    
+
+    @Test(expected = JsonNotValidException.class)
+    public void testJsonShouldBeEqualNoMatchBlank() throws Exception {
+
+        lib.jsonShouldBeEqual("", "");
+    }   
+
+    @Test(expected = JsonNotValidException.class)
+    public void testJsonShouldBeEqualNoMatchNull() throws Exception {
+
+        lib.jsonShouldBeEqual(null, null);
+
+    }
+
+    @Test(expected = JsonNotValidException.class)
+    public void testJsonShouldBeEqualNoMatchNullPartial() throws Exception {
+
+        String from = "{foo: bar}";
+
+        lib.jsonShouldBeEqual(from, null);
+
+    }
+
     @Test
-    public void testJsonShouldBeEqualExact() throws IOException {
+    public void testJsonShouldBeEqualExact() throws Exception {
 
         String from = "{foo: bar}";
         String to = "{foo: bar}";
-        
+
         boolean equal = lib.jsonShouldBeEqual(from, to, true);
 
         assertTrue("The elements should be equal", equal);
     }
-    
-    @Test
-    public void testJsonShouldBeEqualExactNoMatch() throws IOException {
+
+    @Test(expected = JsonNotEqualException.class)
+    public void testJsonShouldBeEqualExactNoMatch() throws Exception {
 
         String from = "{foo: bar}";
         String to = "{foo: xyz}";
-        
-        boolean equal = lib.jsonShouldBeEqual(from, to, true);
 
-        assertFalse("The elements should NOT be equal", equal);
+        lib.jsonShouldBeEqual(from, to, true);
     }
 }
