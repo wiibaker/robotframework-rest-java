@@ -12,6 +12,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
 import org.robotframework.javalib.annotation.RobotKeyword;
 import org.robotframework.javalib.annotation.RobotKeywords;
+import org.wuokko.robot.restlib.exception.JsonElementNotFoundException;
+import org.wuokko.robot.restlib.exception.JsonNotEqualException;
+import org.wuokko.robot.restlib.exception.JsonNotValidException;
 
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
