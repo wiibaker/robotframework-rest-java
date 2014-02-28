@@ -15,6 +15,7 @@
     "bicycle": {
       "color": "red",
       "price": 19.95
-    }
+    },
+    notAvailabe: []
   }
 }
