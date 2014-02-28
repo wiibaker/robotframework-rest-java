@@ -183,6 +183,20 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.robotframework</groupId>
+				<artifactId>robotframework-maven-plugin</artifactId>
+				<version>1.4.1</version>
+				<configuration>
+					<libdoc>
+						<outputDirectory>${basedir}</outputDirectory>
+						<outputFile>RestLib.html</outputFile>
+						<version>${project.version}</version>
+						<name>Robot Framework REST Library</name>
+						<libraryOrResourceFile>org.wuokko.robot.restlib.JsonPathLibrary</libraryOrResourceFile>
+					</libdoc>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
