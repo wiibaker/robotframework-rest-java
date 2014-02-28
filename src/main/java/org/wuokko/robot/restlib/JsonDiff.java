@@ -1,5 +1,7 @@
 package org.wuokko.robot.restlib;
 
+import java.util.Map.Entry;
+
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -86,10 +88,10 @@ public class JsonDiff implements Diff {
 
         boolean equal = true;
 
-        for (Object key : fromJson.keySet()) {
-            String path = key2 + " -> " + key;
+        for (Entry<String, Object> entry : fromJson.entrySet()) {
+            String path = key2 + " -> " + entry.getKey();
 
-            if (!toJson.containsKey(key)) {
+            if (!toJson.containsKey(entry.getKey())) {
                 System.out.println("*ERROR* toJson does not contain key '" + path + "'");
 
                 equal = false;
@@ -97,8 +99,8 @@ public class JsonDiff implements Diff {
 
             } else {
 
-                Object fromObject = fromJson.get(key);
-                Object toObject = toJson.get(key);
+                Object fromObject = fromJson.get(entry.getKey());
+                Object toObject = toJson.get(entry.getKey());
 
                 equal = compareObjects(fromObject, toObject, path);
             }
