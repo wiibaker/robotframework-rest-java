@@ -24,6 +24,34 @@ public class JsonPathLibrary {
 
     private Diff diff = new JsonDiff();
 
+    private static final int MAX_CACHE_SIZE = 100;
+
+    private Map<URI, String> uriCache = Collections.synchronizedMap(new LRUMap<URI, String>(MAX_CACHE_SIZE));
+
+    private final Boolean useCache = Boolean.valueOf(System.getProperty("use.uri.cache"));
+
+    @RobotKeyword
+    public boolean jsonElementShouldMatch(String source, String jsonPath, Object value) throws Exception {
+
+        boolean match = false;
+
+        if (value == null) {
+            throw new IllegalArgumentException("Given value was null");
+        }
+
+        String found = String.valueOf(findJsonElement(source, jsonPath));
+
+        if (found.equals(value)) {
+            System.out.println("*DEBUG* The values '" + found + "' and '" + value + "' did match");
+            match = true;
+        } else {
+            System.out.println("*ERROR* The values '" + found + "' and '" + value + "' did not match");
+            throw new JsonNotEqualException("The found value did not match, found '" + found + "', expected '" + value + "'");
+        }
+
+        return match;
+    }
+
     @RobotKeyword
     public boolean jsonShouldBeEqual(String from, String to) throws Exception {
         return jsonShouldBeEqual(from, to, false);

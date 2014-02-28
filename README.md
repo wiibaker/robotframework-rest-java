@@ -38,6 +38,7 @@ You have following keywords to use
 
 	Find Json Element			JSON/URI	JSONPath
 	Find Json Element List		JSON/URI	JSONPath
+	Json Element Should Match	JSON/URI	JSONPath	Match value
 	Json Should Be Equal		JSON/URI	JSON/URI
 	Json Should Be Equal		JSON/URI	JSON/URI	useExactMatch (boolean)
 	Should Have Element Count	JSON/URI	Count		JSONPath

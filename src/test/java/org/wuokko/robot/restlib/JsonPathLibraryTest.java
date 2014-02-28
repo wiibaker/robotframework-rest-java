@@ -112,6 +112,41 @@ public class JsonPathLibraryTest {
     }
 
     @Test
+    public void testJsonElementShouldMatch() throws Exception {
+
+        String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
+
+        boolean match = lib.jsonElementShouldMatch(source, "$.store.book[0].category", "reference");
+
+        assertTrue("The element count should have matched", match);
+
+        match = lib.jsonElementShouldMatch(source, "$.store.book[0].price", "8.95");
+
+        assertTrue("The element count should have matched", match);
+
+        match = lib.jsonElementShouldMatch(source, "$.store.notAvailabe", "[]");
+
+        assertTrue("The element count should have matched", match);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testJsonElementShouldMatchNoMatch() throws Exception {
+
+        String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
+
+        lib.jsonElementShouldMatch(source, "$.store.book[0].category", null);
+
+    }
+
+    @Test(expected = JsonNotEqualException.class)
+    public void testJsonElementShouldMatchNull() throws Exception {
+
+        String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
+
+        lib.jsonElementShouldMatch(source, "$.store.book[0].category", "fiction");
+    }
+
+    @Test
     public void testShouldHaveElementCount() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
