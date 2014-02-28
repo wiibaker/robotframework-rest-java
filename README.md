@@ -45,6 +45,15 @@ You have following keywords to use
 
 You can pass either URI to the JSON (ie. your REST api output) or the JSON as string.
 
+You can also add system property "use.uri.cache" to use simple in-memory cache
+to cache the results of the URI requests. ie
+
+	mvn robotframework:run -Duse.uri.cache=true
+
+The caching currently only works
+within test cases. So you can do multiple checks on the same URI within a test
+case without reloading the JSON every time. 
+
 Dependencies
 ------------
 
