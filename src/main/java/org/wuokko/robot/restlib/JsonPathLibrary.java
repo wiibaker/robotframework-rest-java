@@ -103,10 +103,10 @@ public class JsonPathLibrary {
 
         try {
             value = JsonPath.read(json, jsonPath);
-         } catch(PathNotFoundException e) {
-             throw new JsonElementNotFoundException("Path '" + jsonPath + "' was not found in JSON");
-         }
-        
+        } catch (PathNotFoundException e) {
+            throw new JsonElementNotFoundException("Path '" + jsonPath + "' was not found in JSON");
+        }
+
         return value;
     }
 
@@ -117,10 +117,10 @@ public class JsonPathLibrary {
         String json = readSource(source);
 
         List<Object> elements;
-        
+
         try {
-           elements = JsonPath.read(json, jsonPath);
-        } catch(PathNotFoundException e) {
+            elements = JsonPath.read(json, jsonPath);
+        } catch (PathNotFoundException e) {
             throw new JsonElementNotFoundException("Path '" + jsonPath + "' was not found in JSON");
         }
 

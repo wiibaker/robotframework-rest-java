@@ -214,14 +214,14 @@ public class JsonPathLibraryTest {
 
         assertNull("The element should be null", element);
     }
-    
+
     @Test(expected = JsonElementNotFoundException.class)
     public void testFindJsonElementPathNotFound() throws Exception {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
         lib.findJsonElement(source, "$.store.foo[0].bar");
-   }
+    }
 
     @Test
     public void testFindJsonElementList() throws Exception {
@@ -251,7 +251,7 @@ public class JsonPathLibraryTest {
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
         lib.findJsonElementList(source, "$.store.foo[*]");
-   }
+    }
 
     @Test
     public void testJsonShouldBeEqual() throws Exception {
@@ -278,7 +278,7 @@ public class JsonPathLibraryTest {
     public void testJsonShouldBeEqualNoMatchBlank() throws Exception {
 
         lib.jsonShouldBeEqual("", "");
-    }   
+    }
 
     @Test(expected = JsonNotValidException.class)
     public void testJsonShouldBeEqualNoMatchNull() throws Exception {
