@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
@@ -180,40 +183,13 @@ public class JsonPathLibrary {
 
         String json = null;
 
-        boolean isURL = false;
-
         if (StringUtils.isNotBlank(source)) {
 
-            // Check if the source is an URL
-            try {
+            URI uri = getURI(source);
 
-                URI uri = getURI(source);
-
-                if (uri != null) {
-
-                    isURL = true;
-
-                    System.out.println("*DEBUG* The source " + source + " is an URL");
-
-                    System.out.println("*TRACE* Loading the JSON from the url");
-
-                    if ("file".equals(uri.getScheme())) {
-                        System.out.println("*DEBUG* Loading file system URI");
-                        json = FileUtils.readFileToString(new File(uri));
-                    } else {
-                        System.out.println("*DEBUG* Loading external URI");
-                        json = Request.Get(uri).connectTimeout(1000).socketTimeout(1000).execute().returnContent().asString();
-                    }
-
-                } else {
-                    System.out.println("*DEBUG* The source is not an URL");
-                }
-
-            } catch (IOException e) {
-                System.out.println("*ERROR* Could not load json from URL " + source + ", because " + e);
-            }
-
-            if (json == null && !isURL) {
+            if (uri != null) {
+                json = loadURI(uri);
+            } else {
                 System.out.println("*DEBUG* The source is JSON");
                 json = source;
             }
@@ -225,12 +201,61 @@ public class JsonPathLibrary {
         return json;
     }
 
+    protected String loadURI(URI uri) {
+
+        String json = null;
+        
+        if (uri != null) {
+
+            System.out.println("Use cache: " + useCache);
+
+            if (useCache) {
+                json = uriCache.get(uri);
+            }
+
+            if (json == null) {
+
+                System.out.println("*DEBUG* Did not find result from cache");
+
+                // Check if the source is an URL
+                try {
+
+                    System.out.println("*TRACE* Loading the JSON from the URI");
+
+                    if ("file".equals(uri.getScheme())) {
+                        System.out.println("*DEBUG* Loading file system URI");
+                        json = FileUtils.readFileToString(new File(uri));
+                    } else {
+                        System.out.println("*DEBUG* Loading external URI");
+                        json = Request.Get(uri).connectTimeout(1000).socketTimeout(1000).execute().returnContent().asString();
+                    }
+
+                    if (json != null && useCache) {
+                        System.out.println("*DEBUG* Storing value to the cache");
+                        uriCache.put(uri, json);
+                    }
+
+                } catch (IOException e) {
+                    System.out.println("*ERROR* Could not load json from URI " + uri + ", because " + e);
+                }
+
+            } else {
+                System.out.println("*DEBUG* Found the result from cache");
+            }
+        } else {
+            System.out.println("*DEBUG* The source is not an URI");
+        }
+
+        return json;
+    }
+
     private URI getURI(String url) {
 
         URI uri = null;
 
         try {
             uri = new URI(url);
+            System.out.println("*DEBUG* The source " + url + " is an URL");
         } catch (URISyntaxException e) {
         }
 

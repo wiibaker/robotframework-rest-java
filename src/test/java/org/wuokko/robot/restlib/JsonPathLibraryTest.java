@@ -13,11 +13,13 @@ import static org.mockito.Mockito.mock;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Request;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +41,6 @@ public class JsonPathLibraryTest {
     @Before
     public void setUp() throws Exception {
         PowerMockito.mockStatic(Request.class);
-        System.setProperty("use.uri.cache", "true");
-        lib = new JsonPathLibrary();
     }
 
     @Test
@@ -315,4 +315,82 @@ public class JsonPathLibraryTest {
 
         lib.jsonShouldBeEqual(from, to, true);
     }
+
+    @Test
+    public void testLoadURIHttp() throws ClientProtocolException, IOException, URISyntaxException {
+
+        URI uri = new URI("http://example.com/test.json");
+
+        Request mockRequest = mock(Request.class, RETURNS_DEEP_STUBS);
+
+        String mockContent = "Foo";
+
+        PowerMockito.when(Request.Get(any(URI.class))).thenReturn(mockRequest);
+        Mockito.when(mockRequest.connectTimeout(anyInt()).socketTimeout(anyInt()).execute().returnContent().asString()).thenReturn(mockContent);
+
+        String content = lib.loadURI(uri);
+
+        assertEquals("The content should be as expected", mockContent, content);
+    }
+
+    @Test
+    public void testLoadURIFile() throws ClientProtocolException, IOException, URISyntaxException {
+
+        String expected = "{ \"foo\": bar }";
+
+        File source = new File("src/test/resources/simple.test.json");
+
+        URI uri = new URI("file://" + source.toURI().getPath());
+
+        String content = lib.loadURI(uri);
+
+        assertEquals("The content should be as expected", expected, content);
+    }
+
+    @Test
+    public void testLoadURINull() throws ClientProtocolException, IOException, URISyntaxException {
+
+        String content = lib.loadURI(null);
+
+        assertNull("The content should be as expected", content);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testLoadURIInvalid() throws ClientProtocolException, IOException, URISyntaxException {
+
+        URI uri = new URI("http://foobarfoobar.example.com/test.json");
+
+        Request mockRequest = mock(Request.class, RETURNS_DEEP_STUBS);
+
+        PowerMockito.when(Request.Get(any(URI.class))).thenReturn(mockRequest);
+        Mockito.when(mockRequest.connectTimeout(anyInt()).socketTimeout(anyInt()).execute().returnContent().asString()).thenThrow(IOException.class);
+
+        String content = lib.loadURI(uri);
+
+        assertNull("The content should be as expected", content);
+    }
+    
+    @Test
+    public void testLoadURIUseCache() throws ClientProtocolException, IOException, URISyntaxException {
+
+        System.setProperty("use.uri.cache", "true");
+        
+        lib = new JsonPathLibrary();
+        
+        String expected = "{ \"foo\": bar }";
+
+        File source = new File("src/test/resources/simple.test.json");
+
+        URI uri = new URI("file://" + source.toURI().getPath());
+
+        String content = lib.loadURI(uri);
+
+        assertEquals("The content should be as expected", expected, content);
+        
+        content = lib.loadURI(uri);
+
+        assertEquals("The content should be as expected", expected, content);
+    }
+
 }
