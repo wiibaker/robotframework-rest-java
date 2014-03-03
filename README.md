@@ -8,22 +8,16 @@ have a library to run smoke tests against deployed REST applications.
 Usage
 -----
 
-The easiest way to use this library is with Robot Framerowk JavalibCore
-https://github.com/robotframework/JavalibCore
+The easiest way to use this library is with Robot Framework Maven Plugin
+See http://robotframework.org/MavenPlugin/ for instructions. 
 
 To use this library by adding the following dependencies to 
 your pom.xml:
-
-    <dependency>
-		<groupId>org.robotframework</groupId>
-		<artifactId>javalib-core</artifactId>
-		<version>1.2</version>
-	</dependency>
 	
 	<dependency>
 		<groupId>org.wuokko.robot</groupId>
 		<artifactId>robotframework-rest-java</artifactId>
-		<version>0.1.0</version>
+		<version>0.2.1</version>
 	</dependency>
 
 To use the library in your Robot Framework test, add the following in Settings part
