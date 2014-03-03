@@ -36,12 +36,12 @@ http://goessner.net/articles/JsonPath/
 
 You have following keywords to use
 
-	Find Json Element			JSON/URI	JSONPath
-	Find Json Element List		JSON/URI	JSONPath
-	Json Element Should Match	JSON/URI	JSONPath	Match value
-	Json Should Be Equal		JSON/URI	JSON/URI
-	Json Should Be Equal		JSON/URI	JSON/URI	useExactMatch (boolean)
-	Should Have Element Count	JSON/URI	Count		JSONPath
+	Find Json Element				JSON/URI	JSONPath
+	Find Json Element List			JSON/URI	JSONPath
+	Json Element Should Match		JSON/URI	JSONPath	Match value
+	Json Should Be Equal			JSON/URI	JSON/URI
+	Json Should Be Equal			JSON/URI	JSON/URI	useExactMatch (boolean)
+	Json Should Have Element Count	JSON/URI	JSONPath	Count
 
 You can pass either URI to the JSON (ie. your REST api output) or the JSON as string.
 
