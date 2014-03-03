@@ -129,7 +129,7 @@ public class JsonPathLibrary {
 
     @SuppressWarnings("unchecked")
     @RobotKeyword
-    public boolean shouldHaveElementCount(String source, Integer count, String jsonPath) throws Exception {
+    public boolean jsonShouldHaveElementCount(String source, String jsonPath, Integer count) throws Exception {
         boolean match = false;
 
         System.out.println("*DEBUG* Reading jsonPath: " + jsonPath);

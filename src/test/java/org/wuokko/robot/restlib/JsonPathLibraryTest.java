@@ -151,7 +151,7 @@ public class JsonPathLibraryTest {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
-        boolean match = lib.shouldHaveElementCount(source, 2, "$.store.book[*]");
+        boolean match = lib.jsonShouldHaveElementCount(source, "$.store.book[*]", 2);
 
         assertTrue("The element count should have matched", match);
     }
@@ -161,7 +161,7 @@ public class JsonPathLibraryTest {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
-        lib.shouldHaveElementCount(source, 2, "$.foo.bar[*]");
+        lib.jsonShouldHaveElementCount(source, "$.foo.bar[*]", 2);
 
     }
 
@@ -170,7 +170,7 @@ public class JsonPathLibraryTest {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
-        lib.shouldHaveElementCount(source, 4, "$.store.book[*]");
+        lib.jsonShouldHaveElementCount(source, "$.store.book[*]", 4);
 
     }
 
@@ -179,7 +179,7 @@ public class JsonPathLibraryTest {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
-        boolean match = lib.shouldHaveElementCount(source, 1, "$.store.bicycle.color");
+        boolean match = lib.jsonShouldHaveElementCount(source, "$.store.bicycle.color", 1);
 
         assertTrue("The element count should have matched", match);
     }
@@ -189,7 +189,7 @@ public class JsonPathLibraryTest {
 
         String source = IOUtils.toString(ClassLoader.getSystemClassLoader().getResourceAsStream("test.json"));
 
-        lib.shouldHaveElementCount(source, 2, "$.store.bicycle.color");
+        lib.jsonShouldHaveElementCount(source, "$.store.bicycle.color", 2);
 
     }
 
