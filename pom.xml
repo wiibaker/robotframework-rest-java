@@ -192,7 +192,8 @@
 						<outputFile>RestLib.html</outputFile>
 						<version>${project.version}</version>
 						<name>Robot Framework REST Library</name>
-						<libraryOrResourceFile>org.wuokko.robot.restlib.JsonPathLibrary</libraryOrResourceFile>
+						<!-- There is something funky in this, as it complains about classes not found, but still manages to generate the documentation -->
+						<libraryOrResourceFile>src/main/java/org/wuokko/robot/restlib/JsonPathLibrary.java</libraryOrResourceFile>
 					</libdoc>
 				</configuration>
 			</plugin>

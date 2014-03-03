@@ -22,6 +22,25 @@ import org.wuokko.robot.restlib.exception.JsonNotValidException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 
+/**
+ * Robot Framework REST Library is a library for testing REST APIs in JSON
+ * format.
+ * 
+ * It uses Javalib Core (https://github.com/robotframework/JavalibCore) as
+ * framework.
+ * 
+ * The source for the JSON to test can be given either as URI (file or http) or
+ * as the full JSON content itself.
+ * 
+ * There is possibility to cache the URI results into a simple in-memory cache
+ * with system property "use.uri.cache". The cache works within a single test
+ * case only.
+ * 
+ * Example:
+ * 
+ * mvn robotframework:run -Duse.uri.cache=true
+ * 
+ */
 @RobotKeywords
 public class JsonPathLibrary {
 
@@ -33,6 +52,16 @@ public class JsonPathLibrary {
 
     private final Boolean useCache = Boolean.valueOf(System.getProperty("use.uri.cache"));
 
+    /**
+     * Checks if the given value matches the one found by the `jsonPath` from
+     * the `source`.
+     * 
+     * Source can be either URI or the actual JSON content
+     * 
+     * Example:
+     * | Json Element Should Match | http://example.com/test.json | $.element.param | hello |
+     * | Json Element Should Match | { element: { param:hello } } | $.element.param | hello |
+     */
     @RobotKeyword
     public boolean jsonElementShouldMatch(String source, String jsonPath, Object value) throws Exception {
 
@@ -55,11 +84,33 @@ public class JsonPathLibrary {
         return match;
     }
 
+    /**
+     * Checks if the given JSON contents are equal. See `Json Should Be Equal`
+     * for more details
+     * 
+     * `from` and `to` can be either URI or the actual JSON content.
+     * 
+     * Example:
+     * | Json Should Be Equal | http://example.com/test.json | http://foobar.com/test.json |
+     * | Json Should Be Equal | { element: { param:hello } } | { element: { param:hello } } |
+     */
     @RobotKeyword
     public boolean jsonShouldBeEqual(String from, String to) throws Exception {
         return jsonShouldBeEqual(from, to, false);
     }
 
+    /**
+     * Checks if the given JSON contents are equal. The third parameter
+     * specifies whether exact string match should be used or diffing by the
+     * JSON objects ie. the order of the attributes does not matter.
+     * 
+     * `from` and `to` can be either URI or the actual JSON content.
+     * 
+     * Example:
+     * | Json Should Be Equal | http://example.com/test.json | http://foobar.com/test.json | true |
+     * | Json Should Be Equal | { element: { param:hello, foo:bar } } | { element: { foo:bar, param:hello } } | true |
+     * 
+     */
     @RobotKeyword
     public boolean jsonShouldBeEqual(String from, String to, boolean useExactMatch) throws Exception {
         System.out.println("*DEBUG* Comparing JSON sources");
@@ -93,6 +144,16 @@ public class JsonPathLibrary {
         return equal;
     }
 
+    /**
+     * Find JSON element by `jsonPath` from the `source` and return its value if found.
+     * 
+     * `source` can be either URI or the actual JSON content.
+     * 
+     * Example:
+     * | Find Json Element | http://example.com/test.json | $.foo.bar |
+     * | Find Json Element | {element: { param:hello, foo:bar } } | $.element.foo |
+     * 
+     */
     @RobotKeyword
     public Object findJsonElement(String source, String jsonPath) throws Exception {
         System.out.println("*DEBUG* Reading jsonPath: " + jsonPath);
@@ -110,6 +171,16 @@ public class JsonPathLibrary {
         return value;
     }
 
+    /**
+     * Find JSON element list by `jsonPath` from the `source` and return its value if found.
+     * 
+     * `source` can be either URI or the actual JSON content.
+     * 
+     * Example:
+     * | Find Json Element | http://example.com/test.json | $.foo[*] |
+     * | Find Json Element | {element: [ {param:hello}, {foo:bar} ] } | $.element[*] |
+     * 
+     */
     @RobotKeyword
     public List<Object> findJsonElementList(String source, String jsonPath) throws Exception {
         System.out.println("*DEBUG* Reading jsonPath: " + jsonPath);
@@ -127,6 +198,16 @@ public class JsonPathLibrary {
         return elements;
     }
 
+    /**
+     * Find JSON element by `jsonPath` from the `source` and check if the amount of found elements matches the given `count`.
+     * 
+     * `source` can be either URI or the actual JSON content.
+     * 
+     * Example:
+     * | Json Should Have Element Count | http://example.com/test.json | $.foo[*] | 3 |
+     * | Json Should Have Element Count | {element: [ {param:hello}, {foo:bar} ] } | $.element[*] | 2 |
+     * 
+     */
     @SuppressWarnings("unchecked")
     @RobotKeyword
     public boolean jsonShouldHaveElementCount(String source, String jsonPath, Integer count) throws Exception {
