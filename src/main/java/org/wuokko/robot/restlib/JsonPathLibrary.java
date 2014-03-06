@@ -91,20 +91,21 @@ public class JsonPathLibrary {
     protected void loadProperties(String propertiesFile) {
         try {
             config = new PropertiesConfiguration(propertiesFile);
+            System.out.println("[Robot-Rest-Lib] Found properties file '" + propertiesFile + "'");
         } catch (ConfigurationException e) {
-            System.out.println("*DEBUG* Did not find properties file '" + propertiesFile + "', using defaults");
+            System.out.println("[Robot-Rest-Lib] Did not find properties file '" + propertiesFile + "', using defaults");
         }
 
         if(config != null) {
             
             if(config.containsKey("connection.timeout")) {
                 CONNECTION_TIMEOUT = config.getInt("connection.timeout");
-                System.out.println("*TRACE* Set connection time to '" + CONNECTION_TIMEOUT + "'");
+                System.out.println("[Robot-Rest-Lib] Set connection time to '" + CONNECTION_TIMEOUT + "'");
             }
             
             if(config.containsKey("use.uri.cache")) {
                 useCache = config.getBoolean("use.uri.cache");
-                System.out.println("*TRACE* Using URI cache");
+                System.out.println("[Robot-Rest-Lib] Using URI cache: " + useCache);
             }
         }
     }
