@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Request;
@@ -33,7 +35,7 @@ import org.wuokko.robot.restlib.exception.JsonNotEqualException;
 import org.wuokko.robot.restlib.exception.JsonNotValidException;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ Request.class })
+@PrepareForTest({ Request.class, JsonPathLibrary.class })
 public class JsonPathLibraryTest {
 
     JsonPathLibrary lib = new JsonPathLibrary();
@@ -43,6 +45,43 @@ public class JsonPathLibraryTest {
         PowerMockito.mockStatic(Request.class);
     }
 
+    @Test
+    public void testConstructor() throws Exception {
+        
+        PropertiesConfiguration mockConfiguration = mock(PropertiesConfiguration.class);
+        
+        PowerMockito.whenNew(PropertiesConfiguration.class).withArguments("robot-rest-lib.properties").thenReturn(mockConfiguration);
+        
+        new JsonPathLibrary();
+        
+        PowerMockito.verifyNew(PropertiesConfiguration.class).withArguments("robot-rest-lib.properties");
+    }
+    
+    @Test
+    public void testConstructorWithPropertiesFile() throws Exception {
+        
+        PropertiesConfiguration mockConfiguration = mock(PropertiesConfiguration.class);
+        
+        PowerMockito.whenNew(PropertiesConfiguration.class).withArguments("robot-rest-lib.properties").thenReturn(mockConfiguration);
+        
+        new JsonPathLibrary("robot-rest-lib.properties");
+        
+        PowerMockito.verifyNew(PropertiesConfiguration.class).withArguments("robot-rest-lib.properties");
+    }
+    
+    @Test
+    public void testConstructorWithPropertiesFileNotFound() throws Exception {
+        
+//        PropertiesConfiguration mockConfiguration = mock(PropertiesConfiguration.class);
+        
+//        PowerMockito.whenNew(PropertiesConfiguration.class).withArguments("robot-rest-lib.properties").thenReturn(mockConfiguration);
+        
+        new JsonPathLibrary("non-existent");
+        
+//        PowerMockito.verifyNew(PropertiesConfiguration.class, Mockito.times(0)).withArguments("robot-rest-lib.properties");
+//        PowerMockito.verifyNew(PropertiesConfiguration.class, Mockito.times(1)).withArguments("non-existent");
+    }
+    
     @Test
     public void testReadJsonSource() throws IOException {
 

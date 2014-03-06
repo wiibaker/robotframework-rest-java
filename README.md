@@ -46,7 +46,14 @@ to cache the results of the URI requests. ie
 
 The caching currently only works
 within test cases. So you can do multiple checks on the same URI within a test
-case without reloading the JSON every time. 
+case without reloading the JSON every time.
+
+You can also add properties file named 'robot-rest-lib.properties' to the classpath.
+It will be used to override some default values. Currently supported values
+
+	|| property || type || default ||
+	| connection.timeout | int | 1000 |
+	| use.uri.cache | boolean | false |
 
 Dependencies
 ------------
@@ -61,6 +68,7 @@ You need following dependencies to use this library
 	org.apache.httpcomponents:httpcore:jar:4.3.1
 	commons-io:commons-io:jar:2.4
 	commons-logging:commons-logging:jar:1.1.3
+	commons-configuration:commons-configuration:jar:1.9
 	org.apache.httpcomponents:httpclient:jar:4.3.2
 	org.robotframework:javalib-core:jar:1.2
 	commons-collections:commons-collections:jar:3.2

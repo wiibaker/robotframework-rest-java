@@ -10,6 +10,9 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.map.LRUMap;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
@@ -32,6 +35,8 @@ import com.jayway.jsonpath.PathNotFoundException;
  * The source for the JSON to test can be given either as URI (file or http) or
  * as the full JSON content itself.
  * 
+ * = Runtime options =
+ * 
  * There is possibility to cache the URI results into a simple in-memory cache
  * with system property "use.uri.cache". The cache works within a single test
  * case only.
@@ -40,18 +45,70 @@ import com.jayway.jsonpath.PathNotFoundException;
  * 
  * mvn robotframework:run -Duse.uri.cache=true
  * 
+ * = Properties =
+ * 
+ * Also you can use properties file to set few options. The file named
+ * 'robot-rest-lib.properties' is looked from the classpath. The options are:
+ * 
+ *  | *Property* | *Type* | *Default* |
+ *  | connection.timeout | int | 1000 |
+ *  | use.uri.cache | boolean | false |
+ * 
  */
 @RobotKeywords
 public class JsonPathLibrary {
 
     private Diff diff = new JsonDiff();
 
+    private static final String DEFAULT_PROPERTIES_FILE = "robot-rest-lib.properties";
+    
     private static final int MAX_CACHE_SIZE = 100;
+
+    private static int CONNECTION_TIMEOUT = 1000;
 
     private Map<URI, String> uriCache = Collections.synchronizedMap(new LRUMap<URI, String>(MAX_CACHE_SIZE));
 
-    private final Boolean useCache = Boolean.valueOf(System.getProperty("use.uri.cache"));
+    private Boolean useCache = Boolean.valueOf(System.getProperty("use.uri.cache"));
 
+    private Configuration config;
+    
+    /**
+     * Default constructor with no arguments.
+     * 
+     * Instantiates a library using the default 'robot-rest-lib.properties' properties file.
+     */
+    public JsonPathLibrary() {
+       loadProperties(DEFAULT_PROPERTIES_FILE);
+    }
+    
+    /**
+     * Instantiates a library with custom named properties file. Pass the properties file name as an argument to the library.
+     */
+    public JsonPathLibrary(String propertiesFile) {
+        loadProperties(propertiesFile);
+    }
+    
+    protected void loadProperties(String propertiesFile) {
+        try {
+            config = new PropertiesConfiguration(propertiesFile);
+        } catch (ConfigurationException e) {
+            System.out.println("*DEBUG* Did not find properties file '" + propertiesFile + "', using defaults");
+        }
+
+        if(config != null) {
+            
+            if(config.containsKey("connection.timeout")) {
+                CONNECTION_TIMEOUT = config.getInt("connection.timeout");
+                System.out.println("*TRACE* Set connection time to '" + CONNECTION_TIMEOUT + "'");
+            }
+            
+            if(config.containsKey("use.uri.cache")) {
+                useCache = config.getBoolean("use.uri.cache");
+                System.out.println("*TRACE* Using URI cache");
+            }
+        }
+    }
+    
     /**
      * Checks if the given value matches the one found by the `jsonPath` from
      * the `source`.
@@ -308,7 +365,7 @@ public class JsonPathLibrary {
                         json = FileUtils.readFileToString(new File(uri));
                     } else {
                         System.out.println("*DEBUG* Loading external URI");
-                        json = Request.Get(uri).connectTimeout(1000).socketTimeout(1000).execute().returnContent().asString();
+                        json = Request.Get(uri).connectTimeout(CONNECTION_TIMEOUT).socketTimeout(CONNECTION_TIMEOUT).execute().returnContent().asString();
                     }
 
                     if (json != null && useCache) {
