@@ -202,6 +202,13 @@
 						<libraryOrResourceFile>src/main/java/org/wuokko/robot/restlib/JsonPathLibrary.java</libraryOrResourceFile>
 					</libdoc>
 				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.wuokko.robot</groupId>
+						<artifactId>robotframework-rest-java</artifactId>
+						<version>${project.version}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>

@@ -55,6 +55,15 @@ It will be used to override some default values. Currently supported values
 	| connection.timeout | int | 1000 |
 	| use.uri.cache | boolean | false |
 
+Example
+-------
+
+There is a simple example in `example/example_simple.txt`.
+
+You can try it by running
+
+> mvn robotframework:run -DtestCasesDirectory=example
+
 Dependencies
 ------------
 

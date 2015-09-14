@@ -1,0 +1,22 @@
+*** Settings ***
+
+Library	 	org.robotframework.javalib.library.AnnotationLibrary	 org/wuokko/robot/restlib/*.class
+
+*** Variables ***
+
+${TEST_JSON}			file:///${CURDIR}/../src/test/resources/test.json
+#${TEST_JSON}				file:///C:/Users/mikko.wuokko/workspace/robotframework-rest-java/src/test/resources/test.json
+
+*** Test Cases ***
+
+Test Book Count
+	Json Should Have Element Count	${TEST_JSON}	$.store.book.[*]	2
+
+Test Book Content
+	${author}		Find Json Element	${TEST_JSON}	$.store.book.[0].author
+	Should Be Equal		${author}	Nigel Rees
+	
+	Json Element Should Match	${TEST_JSON}	$.store.book.[0].title	Sayings of the Century
+	
+	${price}		Find Json Element	${TEST_JSON}	$.store.book.[0].price
+	Should Be True		${price} < 9
