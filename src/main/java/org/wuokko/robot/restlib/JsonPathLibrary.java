@@ -393,6 +393,10 @@ public class JsonPathLibrary {
         URI uri = null;
 
         try {
+        	// To be able to support Operation System Variables in Windows also
+        	// we need to change all \ into /
+        	url = url.replaceAll("\\\\", "/");
+        	
             uri = new URI(url);
             System.out.println("*DEBUG* The source " + url + " is an URL");
         } catch (URISyntaxException e) {
