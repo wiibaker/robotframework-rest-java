@@ -1,26 +1,17 @@
 package org.wuokko.robot.restlib;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.fluent.Request;
 import org.robotframework.javalib.annotation.RobotKeyword;
 import org.robotframework.javalib.annotation.RobotKeywords;
 import org.wuokko.robot.restlib.exception.JsonElementNotFoundException;
 import org.wuokko.robot.restlib.exception.JsonNotEqualException;
 import org.wuokko.robot.restlib.exception.JsonNotValidException;
+import org.wuokko.robot.restlib.util.PropertiesUtil;
+import org.wuokko.robot.restlib.util.RequestUtil;
 
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
@@ -61,16 +52,10 @@ public class JsonPathLibrary {
     private Diff diff = new JsonDiff();
 
     private static final String DEFAULT_PROPERTIES_FILE = "robot-rest-lib.properties";
-    
-    private static final int MAX_CACHE_SIZE = 100;
-
-    private static int CONNECTION_TIMEOUT = 1000;
-
-    private Map<URI, String> uriCache = Collections.synchronizedMap(new LRUMap<URI, String>(MAX_CACHE_SIZE));
-
-    private Boolean useCache = Boolean.valueOf(System.getProperty("use.uri.cache"));
 
     private Configuration config;
+    
+    private RequestUtil requestUtil;
     
     /**
      * Default constructor with no arguments.
@@ -78,36 +63,30 @@ public class JsonPathLibrary {
      * Instantiates a library using the default 'robot-rest-lib.properties' properties file.
      */
     public JsonPathLibrary() {
-       loadProperties(DEFAULT_PROPERTIES_FILE);
+    	this(DEFAULT_PROPERTIES_FILE);
     }
     
     /**
      * Instantiates a library with custom named properties file. Pass the properties file name as an argument to the library.
      */
     public JsonPathLibrary(String propertiesFile) {
-        loadProperties(propertiesFile);
+    	config = PropertiesUtil.loadProperties(propertiesFile);
+    	requestUtil = new RequestUtil(config);
     }
     
-    protected void loadProperties(String propertiesFile) {
-        try {
-            config = new PropertiesConfiguration(propertiesFile);
-            System.out.println("[Robot-Rest-Lib] Found properties file '" + propertiesFile + "'");
-        } catch (ConfigurationException e) {
-            System.out.println("[Robot-Rest-Lib] Did not find properties file '" + propertiesFile + "', using defaults");
-        }
-
-        if(config != null) {
-            
-            if(config.containsKey("connection.timeout")) {
-                CONNECTION_TIMEOUT = config.getInt("connection.timeout");
-                System.out.println("[Robot-Rest-Lib] Set connection time to '" + CONNECTION_TIMEOUT + "'");
-            }
-            
-            if(config.containsKey("use.uri.cache")) {
-                useCache = config.getBoolean("use.uri.cache");
-                System.out.println("[Robot-Rest-Lib] Using URI cache: " + useCache);
-            }
-        }
+    @RobotKeyword
+    public boolean jsonElementShouldMatch(String source, String jsonPath, Object value) throws Exception {
+    	return jsonElementShouldMatch(source, jsonPath, value, null);
+    }
+    
+    @RobotKeyword
+    public boolean jsonElementShouldMatch(String source, String jsonPath, Object value, String method) throws Exception {
+    	return jsonElementShouldMatch(source, jsonPath, value, method, null);
+    }
+    
+    @RobotKeyword
+    public boolean jsonElementShouldMatch(String source, String jsonPath, Object value, String method, String data) throws Exception {
+    	return jsonElementShouldMatch(source, jsonPath, value, method, data, null);
     }
     
     /**
@@ -116,12 +95,15 @@ public class JsonPathLibrary {
      * 
      * Source can be either URI or the actual JSON content
      * 
+     * You can add optional method (ie GET, POST, PUT), data or content type as parameters.
+     * Method defaults to GET.
+     * 
      * Example:
      * | Json Element Should Match | http://example.com/test.json | $.element.param | hello |
      * | Json Element Should Match | { element: { param:hello } } | $.element.param | hello |
      */
     @RobotKeyword
-    public boolean jsonElementShouldMatch(String source, String jsonPath, Object value) throws Exception {
+    public boolean jsonElementShouldMatch(String source, String jsonPath, Object value, String method, String data, String contentType) throws Exception {
 
         boolean match = false;
 
@@ -129,7 +111,7 @@ public class JsonPathLibrary {
             throw new IllegalArgumentException("Given value was null");
         }
 
-        String found = String.valueOf(findJsonElement(source, jsonPath));
+        String found = String.valueOf(findJsonElement(source, jsonPath, method, data, contentType));
 
         if (found.equals(value)) {
             System.out.println("*DEBUG* The values '" + found + "' and '" + value + "' did match");
@@ -148,13 +130,32 @@ public class JsonPathLibrary {
      * 
      * `from` and `to` can be either URI or the actual JSON content.
      * 
+     * You can add optional method (ie GET, POST, PUT), data or content type as parameters.
+     * Method defaults to GET.
+     * 
      * Example:
      * | Json Should Be Equal | http://example.com/test.json | http://foobar.com/test.json |
      * | Json Should Be Equal | { element: { param:hello } } | { element: { param:hello } } |
      */
+    
     @RobotKeyword
     public boolean jsonShouldBeEqual(String from, String to) throws Exception {
         return jsonShouldBeEqual(from, to, false);
+    }
+    
+    @RobotKeyword
+    public boolean jsonShouldBeEqual(String from, String to, boolean useExactMatch) throws Exception {
+        return jsonShouldBeEqual(from, to, useExactMatch, null);
+    }
+
+    @RobotKeyword
+    public boolean jsonShouldBeEqual(String from, String to, boolean useExactMatch, String method) throws Exception {
+        return jsonShouldBeEqual(from, to, useExactMatch, method, null);
+    }
+    
+    @RobotKeyword
+    public boolean jsonShouldBeEqual(String from, String to, boolean useExactMatch, String method, String data) throws Exception {
+        return jsonShouldBeEqual(from, to, useExactMatch, method, data, null);
     }
 
     /**
@@ -164,20 +165,23 @@ public class JsonPathLibrary {
      * 
      * `from` and `to` can be either URI or the actual JSON content.
      * 
+     * You can add optional method (ie GET, POST, PUT), data or content type as parameters.
+     * Method defaults to GET.
+     * 
      * Example:
      * | Json Should Be Equal | http://example.com/test.json | http://foobar.com/test.json | true |
      * | Json Should Be Equal | { element: { param:hello, foo:bar } } | { element: { foo:bar, param:hello } } | true |
      * 
      */
     @RobotKeyword
-    public boolean jsonShouldBeEqual(String from, String to, boolean useExactMatch) throws Exception {
+    public boolean jsonShouldBeEqual(String from, String to, boolean useExactMatch, String method, String data, String contentType) throws Exception {
         System.out.println("*DEBUG* Comparing JSON sources");
 
         boolean equal = false;
 
-        String fromJson = readSource(from);
-        String toJson = readSource(to);
-
+        String fromJson = requestUtil.readSource(from, method, data, contentType);
+        String toJson = requestUtil.readSource(to, method, data, contentType);
+        
         if (StringUtils.isNotBlank(fromJson) && StringUtils.isNotBlank(toJson)) {
             if (useExactMatch) {
                 if (fromJson.equals(toJson)) {
@@ -196,16 +200,34 @@ public class JsonPathLibrary {
             }
         } else {
             System.out.println("*ERROR* Either from or to JSON was empty");
-            throw new JsonNotValidException("JSON strings are NOT equal by compare");
+            throw new JsonNotValidException("One of the JSON strings is empty");
         }
 
         return equal;
     }
 
+    @RobotKeyword
+    public Object findJsonElement(String source, String jsonPath) throws Exception {
+    	return findJsonElement(source, jsonPath, null);
+    }
+    
+    @RobotKeyword
+    public Object findJsonElement(String source, String jsonPath, String method) throws Exception {
+    	return findJsonElement(source, jsonPath, method, null);
+    }
+    
+    @RobotKeyword
+    public Object findJsonElement(String source, String jsonPath, String method, String data) throws Exception {
+    	return findJsonElement(source, jsonPath, method, data, null);
+    }
+    
     /**
      * Find JSON element by `jsonPath` from the `source` and return its value if found.
      * 
      * `source` can be either URI or the actual JSON content.
+     * 
+     * You can add optional method (ie GET, POST, PUT), data or content type as parameters.
+     * Method defaults to GET.
      * 
      * Example:
      * | Find Json Element | http://example.com/test.json | $.foo.bar |
@@ -213,10 +235,10 @@ public class JsonPathLibrary {
      * 
      */
     @RobotKeyword
-    public Object findJsonElement(String source, String jsonPath) throws Exception {
+    public Object findJsonElement(String source, String jsonPath, String method, String data, String contentType) throws Exception {
         System.out.println("*DEBUG* Reading jsonPath: " + jsonPath);
 
-        String json = readSource(source);
+        String json = requestUtil.readSource(source, method, data, contentType);
 
         Object value;
 
@@ -228,11 +250,26 @@ public class JsonPathLibrary {
 
         return value;
     }
+    
+    public List<Object> findJsonElementList(String source, String jsonPath) throws Exception {
+    	return findJsonElementList(source, jsonPath, null);
+    }
+    
+    public List<Object> findJsonElementList(String source, String jsonPath, String method) throws Exception {
+    	return findJsonElementList(source, jsonPath, method, null);
+    }
+    
+    public List<Object> findJsonElementList(String source, String jsonPath, String method, String data) throws Exception {
+    	return findJsonElementList(source, jsonPath, method, data, null);
+    }
 
     /**
      * Find JSON element list by `jsonPath` from the `source` and return its value if found.
      * 
      * `source` can be either URI or the actual JSON content.
+     * 
+     * You can add optional method (ie GET, POST, PUT), data or content type as parameters.
+     * Method defaults to GET.
      * 
      * Example:
      * | Find Json Element | http://example.com/test.json | $.foo[*] |
@@ -240,10 +277,10 @@ public class JsonPathLibrary {
      * 
      */
     @RobotKeyword
-    public List<Object> findJsonElementList(String source, String jsonPath) throws Exception {
+    public List<Object> findJsonElementList(String source, String jsonPath, String method, String data, String contentType) throws Exception {
         System.out.println("*DEBUG* Reading jsonPath: " + jsonPath);
 
-        String json = readSource(source);
+        String json = requestUtil.readSource(source, method, data, contentType);
 
         List<Object> elements;
 
@@ -256,10 +293,28 @@ public class JsonPathLibrary {
         return elements;
     }
 
+    @RobotKeyword
+    public boolean jsonShouldHaveElementCount(String source, String jsonPath, Integer count) throws Exception {
+    	return jsonShouldHaveElementCount(source, jsonPath, count, null);
+    }
+    
+    @RobotKeyword
+    public boolean jsonShouldHaveElementCount(String source, String jsonPath, Integer count, String method) throws Exception {
+    	return jsonShouldHaveElementCount(source, jsonPath, count, method, null);
+    }
+    
+    @RobotKeyword
+    public boolean jsonShouldHaveElementCount(String source, String jsonPath, Integer count, String method, String data) throws Exception {
+    	return jsonShouldHaveElementCount(source, jsonPath, count, method, data, null);
+    }
+    
     /**
      * Find JSON element by `jsonPath` from the `source` and check if the amount of found elements matches the given `count`.
      * 
      * `source` can be either URI or the actual JSON content.
+     * 
+     * You can add optional method (ie GET, POST, PUT), data or content type as parameters.
+     * Method defaults to GET.
      * 
      * Example:
      * | Json Should Have Element Count | http://example.com/test.json | $.foo[*] | 3 |
@@ -268,12 +323,12 @@ public class JsonPathLibrary {
      */
     @SuppressWarnings("unchecked")
     @RobotKeyword
-    public boolean jsonShouldHaveElementCount(String source, String jsonPath, Integer count) throws Exception {
+    public boolean jsonShouldHaveElementCount(String source, String jsonPath, Integer count, String method, String data, String contentType) throws Exception {
         boolean match = false;
 
         System.out.println("*DEBUG* Reading jsonPath: " + jsonPath);
 
-        String json = readSource(source);
+        String json = requestUtil.readSource(source, method, data, contentType);
 
         List<Object> elements = null;
 
@@ -316,93 +371,6 @@ public class JsonPathLibrary {
         }
 
         return match;
-    }
-
-    protected String readSource(String source) {
-
-        String json = null;
-
-        if (StringUtils.isNotBlank(source)) {
-
-            URI uri = getURI(source);
-
-            if (uri != null) {
-                json = loadURI(uri);
-            } else {
-                System.out.println("*DEBUG* The source is JSON");
-                json = source;
-            }
-
-        } else {
-            System.out.println("*ERROR* The source was empty or null: " + source);
-        }
-
-        return json;
-    }
-
-    protected String loadURI(URI uri) {
-
-        String json = null;
-        
-        if (uri != null) {
-
-            System.out.println("Use cache: " + useCache);
-
-            if (useCache) {
-                json = uriCache.get(uri);
-            }
-
-            if (json == null) {
-
-                System.out.println("*DEBUG* Did not find result from cache");
-
-                // Check if the source is an URL
-                try {
-
-                    System.out.println("*TRACE* Loading the JSON from the URI");
-
-                    if ("file".equals(uri.getScheme())) {
-                        System.out.println("*DEBUG* Loading file system URI");
-                        json = FileUtils.readFileToString(new File(uri));
-                    } else {
-                        System.out.println("*DEBUG* Loading external URI");
-                        json = Request.Get(uri).connectTimeout(CONNECTION_TIMEOUT).socketTimeout(CONNECTION_TIMEOUT).execute().returnContent().asString();
-                    }
-
-                    if (json != null && useCache) {
-                        System.out.println("*DEBUG* Storing value to the cache");
-                        uriCache.put(uri, json);
-                    }
-
-                } catch (IOException e) {
-                    System.out.println("*ERROR* Could not load json from URI " + uri + ", because " + e);
-                }
-
-            } else {
-                System.out.println("*DEBUG* Found the result from cache");
-            }
-        } else {
-            System.out.println("*DEBUG* The source is not an URI");
-        }
-
-        return json;
-    }
-
-    private URI getURI(String url) {
-
-        URI uri = null;
-
-        try {
-        	// To be able to support Operation System Variables in Windows also
-        	// we need to change all \ into /
-        	url = url.replaceAll("\\\\", "/");
-        	
-            uri = new URI(url);
-            System.out.println("*DEBUG* The source " + url + " is an URL");
-        } catch (URISyntaxException e) {
-        }
-
-        return uri;
     }
 
 }
