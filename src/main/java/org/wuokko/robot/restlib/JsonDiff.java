@@ -103,6 +103,10 @@ public class JsonDiff implements Diff {
                 Object toObject = toJson.get(entry.getKey());
 
                 equal = compareObjects(fromObject, toObject, path);
+                
+                if(!equal) {
+                	break;
+                }
             }
 
         }

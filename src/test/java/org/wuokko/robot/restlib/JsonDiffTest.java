@@ -35,6 +35,59 @@ public class JsonDiffTest {
     }
     
     @Test
+    public void testCompareMultipleFields() throws IOException {
+
+        boolean equal = diff.compare("{foo: bar, abc: xyz}", "{foo: bar, abc: xyz}");
+
+        assertTrue("The jsons should have matched", equal);
+
+    }
+    
+    @Test
+    public void testCompareFieldNoMatch() throws IOException {
+
+        boolean equal = diff.compare("{abc: bar}", "{foo: bar}");
+
+        assertFalse("The jsons should not have matched", equal);
+
+    }
+    
+    @Test
+    public void testCompareValueNoMatch() throws IOException {
+
+        boolean equal = diff.compare("{foo: abc}", "{foo: bar}");
+
+        assertFalse("The jsons should not have matched", equal);
+
+    }
+    
+    @Test
+    public void testCompareMultipleFieldsValuesNoMatch() throws IOException {
+
+        boolean equal = diff.compare("{foo: car, abc: xyz}", "{foo: bar, abc: xyz}");
+
+        assertFalse("The jsons should NOT have matched", equal);
+        
+        equal = diff.compare("{foo: bar, abc: car}", "{foo: bar, abc: xyz}");
+
+        assertFalse("The jsons should NOT have matched", equal);
+
+    }
+    
+    @Test
+    public void testCompareMultipleFieldsFieldNoMatch() throws IOException {
+
+        boolean equal = diff.compare("{foo: bar, car: xyz}", "{foo: bar, abc: xyz}");
+
+        assertFalse("The jsons should NOT have matched", equal);
+        
+        equal = diff.compare("{foo: bar, abc: car}", "{foo: bar, abc: xyz}");
+
+        assertFalse("The jsons should NOT have matched", equal);
+
+    }
+    
+    @Test
     public void testCompareNull() throws IOException {
 
         boolean equal = diff.compare(null, "{foo: bar}");
