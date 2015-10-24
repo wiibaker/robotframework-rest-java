@@ -22,7 +22,7 @@ public class RequestUtil {
 	
     private static final int MAX_CACHE_SIZE = 100;
 
-    private static int CONNECTION_TIMEOUT = 1000;
+    private static int CONNECTION_TIMEOUT = 5000;
 
     protected Map<URI, String> uriCache = Collections.synchronizedMap(new LRUMap<URI, String>(MAX_CACHE_SIZE));
 

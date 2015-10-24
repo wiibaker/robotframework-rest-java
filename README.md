@@ -52,7 +52,7 @@ You can also add properties file named 'robot-rest-lib.properties' to the classp
 It will be used to override some default values. Currently supported values
 
 	|| property || type || default ||
-	| connection.timeout | int | 1000 |
+	| connection.timeout | int | 5000 |
 	| use.uri.cache | boolean | false |
 
 Example
