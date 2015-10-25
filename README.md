@@ -63,7 +63,7 @@ different methods in `example/example_methods.txt`.
 
 You can try it by running
 
-> mvn robotframework:run -DtestCasesDirectory=example
+> mvn mockserver:start robotframework:run mockserver:stop -DtestCasesDirectory=example
 
 Dependencies
 ------------
