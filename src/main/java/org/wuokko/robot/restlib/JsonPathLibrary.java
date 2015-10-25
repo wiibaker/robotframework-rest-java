@@ -76,7 +76,7 @@ public class JsonPathLibrary {
     
     @RobotKeyword
     public boolean jsonElementShouldMatch(String source, String jsonPath, Object value) throws Exception {
-    	return jsonElementShouldMatch(source, jsonPath, value, null);
+    	return jsonElementShouldMatch(source, jsonPath, value, "GET");
     }
     
     @RobotKeyword
@@ -145,7 +145,7 @@ public class JsonPathLibrary {
     
     @RobotKeyword
     public boolean jsonShouldBeEqual(String from, String to, boolean useExactMatch) throws Exception {
-        return jsonShouldBeEqual(from, to, useExactMatch, null);
+        return jsonShouldBeEqual(from, to, useExactMatch, "GET");
     }
 
     @RobotKeyword
@@ -208,7 +208,7 @@ public class JsonPathLibrary {
 
     @RobotKeyword
     public Object findJsonElement(String source, String jsonPath) throws Exception {
-    	return findJsonElement(source, jsonPath, null);
+    	return findJsonElement(source, jsonPath, "GET");
     }
     
     @RobotKeyword
@@ -252,7 +252,7 @@ public class JsonPathLibrary {
     }
     
     public List<Object> findJsonElementList(String source, String jsonPath) throws Exception {
-    	return findJsonElementList(source, jsonPath, null);
+    	return findJsonElementList(source, jsonPath, "GET");
     }
     
     public List<Object> findJsonElementList(String source, String jsonPath, String method) throws Exception {
@@ -295,7 +295,7 @@ public class JsonPathLibrary {
 
     @RobotKeyword
     public boolean jsonShouldHaveElementCount(String source, String jsonPath, Integer count) throws Exception {
-    	return jsonShouldHaveElementCount(source, jsonPath, count, null);
+    	return jsonShouldHaveElementCount(source, jsonPath, count, "GET");
     }
     
     @RobotKeyword

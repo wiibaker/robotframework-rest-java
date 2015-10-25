@@ -103,7 +103,7 @@ public class JsonPathLibraryTest {
         
         String value = "reference";
         
-        doReturn(Boolean.TRUE).when(spyLib).jsonElementShouldMatch(eq(source), eq(path), eq(value), (String)eq(null));
+        doReturn(Boolean.TRUE).when(spyLib).jsonElementShouldMatch(eq(source), eq(path), eq(value), eq("GET"));
         
         boolean match = spyLib.jsonElementShouldMatch(source, "$.store.book[0].category", "reference");
 
@@ -163,7 +163,7 @@ public class JsonPathLibraryTest {
 
         String path = "$.store.book[0].category";
         
-        doReturn(Boolean.TRUE).when(spyLib).jsonShouldHaveElementCount(eq(source), eq(path), eq(5), (String)eq(null));
+        doReturn(Boolean.TRUE).when(spyLib).jsonShouldHaveElementCount(eq(source), eq(path), eq(5), eq("GET"));
         
         boolean match = spyLib.jsonShouldHaveElementCount(source, path, 5);
 
@@ -265,7 +265,7 @@ public class JsonPathLibraryTest {
         
         String path = "$.store.book[0].category";
 
-        doReturn(expected).when(spyLib).findJsonElement(eq(source), eq(path), (String)eq(null));
+        doReturn(expected).when(spyLib).findJsonElement(eq(source), eq(path), eq("GET"));
         
         Object element = spyLib.findJsonElement(source, path);
 
@@ -315,7 +315,7 @@ public class JsonPathLibraryTest {
         
         String path = "$.store.book[0].category";
 
-        doReturn(expected).when(spyLib).findJsonElementList(eq(source), eq(path), (String)eq(null));
+        doReturn(expected).when(spyLib).findJsonElementList(eq(source), eq(path), eq("GET"));
         
         Object element = spyLib.findJsonElementList(source, path);
 
@@ -374,7 +374,7 @@ public class JsonPathLibraryTest {
         // Reset the spy
         spyLib = Mockito.spy(lib);
         
-        doReturn(Boolean.TRUE).when(spyLib).jsonShouldBeEqual(eq(from), eq(to), eq(false), (String)eq(null));
+        doReturn(Boolean.TRUE).when(spyLib).jsonShouldBeEqual(eq(from), eq(to), eq(false), eq("GET"));
         
         equal = spyLib.jsonShouldBeEqual(from, to, false);
 
