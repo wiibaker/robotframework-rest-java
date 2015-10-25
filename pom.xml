@@ -229,7 +229,7 @@
 			    <configuration>
 			        <serverPort>1080</serverPort>
 			        <proxyPort>1090</proxyPort>
-			        <logLevel>DEBUG</logLevel>
+			        <logLevel>WARN</logLevel>
 			        <initializationClass>org.wuokko.robot.restlib.mockserver.MockserverInitialization</initializationClass>
 			    </configuration>
 			    <executions>
