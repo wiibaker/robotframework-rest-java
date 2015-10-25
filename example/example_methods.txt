@@ -1,0 +1,21 @@
+*** Settings ***
+
+Library	 	org.robotframework.javalib.library.AnnotationLibrary	 org/wuokko/robot/restlib/*.class
+
+*** Variables ***
+
+
+*** Test Cases ***
+
+Test Get Method
+	Json Element Should Match	http://localhost:1080/hello	$.message	hello world
+
+Test Post Method
+	Json Element Should Match	http://localhost:1080/login	$.status	failed	POST	hello
+	Json Element Should Match	http://localhost:1080/login	$.status	success	POST	{username: 'foo', password: 'bar'}
+	
+Test Put Method
+	Json Element Should Match	http://localhost:1080/add	$.modified	1	PUT	{title: 'car', value: '1500'}
+
+Test Delete Method
+	Json Element Should Match	http://localhost:1080/delete?id=123	$.deleted	1	DELETE

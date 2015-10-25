@@ -58,7 +58,8 @@ It will be used to override some default values. Currently supported values
 Example
 -------
 
-There is a simple example in `example/example_simple.txt`.
+There is a simple example in `example/example_simple.txt` and example using
+different methods in `example/example_methods.txt`.
 
 You can try it by running
 

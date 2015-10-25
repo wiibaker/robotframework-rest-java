@@ -5,7 +5,6 @@ Library	 	org.robotframework.javalib.library.AnnotationLibrary	 org/wuokko/robot
 *** Variables ***
 
 ${TEST_JSON}			file:///${CURDIR}/../src/test/resources/test.json
-#${TEST_JSON}				file:///C:/Users/mikko.wuokko/workspace/robotframework-rest-java/src/test/resources/test.json
 
 *** Test Cases ***
 
@@ -20,3 +19,6 @@ Test Book Content
 	
 	${price}		Find Json Element	${TEST_JSON}	$.store.book.[0].price
 	Should Be True		${price} < 9
+
+Test Server Hello World
+	Json Element Should Match	http://localhost:1080/hello	$.message	hello world
