@@ -208,6 +208,17 @@
 						<libraryOrResourceFile>src/main/java/org/wuokko/robot/restlib/JsonPathLibrary.java</libraryOrResourceFile>
 					</libdoc>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<phase>test</phase>
+						<configuration>
+							<testCasesDirectory>example</testCasesDirectory>
+						</configuration>
+					</execution>
+				</executions>
 				<dependencies>
 					<dependency>
 						<groupId>org.wuokko.robot</groupId>
