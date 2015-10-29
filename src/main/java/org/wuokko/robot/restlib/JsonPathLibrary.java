@@ -84,6 +84,8 @@ public class JsonPathLibrary {
     	return jsonElementShouldMatch(source, jsonPath, value, method, null);
     }
     
+    
+    
     @RobotKeyword
     public boolean jsonElementShouldMatch(String source, String jsonPath, Object value, String method, String data) throws Exception {
     	return jsonElementShouldMatch(source, jsonPath, value, method, data, null);
@@ -101,6 +103,7 @@ public class JsonPathLibrary {
      * Example:
      * | Json Element Should Match | http://example.com/test.json | $.element.param | hello |
      * | Json Element Should Match | { element: { param:hello } } | $.element.param | hello |
+     * | Json Element Should Match | { element: { param:hello } } | $.element.param | hello | POST | {hello: world} | application/json |
      */
     @RobotKeyword
     public boolean jsonElementShouldMatch(String source, String jsonPath, Object value, String method, String data, String contentType) throws Exception {
@@ -136,6 +139,7 @@ public class JsonPathLibrary {
      * Example:
      * | Json Should Be Equal | http://example.com/test.json | http://foobar.com/test.json |
      * | Json Should Be Equal | { element: { param:hello } } | { element: { param:hello } } |
+     * | Json Should Be Equal | { element: { param:hello } } | { element: { param:hello } } | POST | {hello: world} | application/json |
      */
     
     @RobotKeyword
@@ -171,6 +175,7 @@ public class JsonPathLibrary {
      * Example:
      * | Json Should Be Equal | http://example.com/test.json | http://foobar.com/test.json | true |
      * | Json Should Be Equal | { element: { param:hello, foo:bar } } | { element: { foo:bar, param:hello } } | true |
+     * | Json Should Be Equal | { element: { param:hello, foo:bar } } | { element: { foo:bar, param:hello } } | true | POST | {hello: world} | application/json |
      * 
      */
     @RobotKeyword
@@ -232,6 +237,7 @@ public class JsonPathLibrary {
      * Example:
      * | Find Json Element | http://example.com/test.json | $.foo.bar |
      * | Find Json Element | {element: { param:hello, foo:bar } } | $.element.foo |
+     * | Find Json Element | {element: { param:hello, foo:bar } } | $.element.foo | POST | {hello: world} | application/json |
      * 
      */
     @RobotKeyword
@@ -274,6 +280,7 @@ public class JsonPathLibrary {
      * Example:
      * | Find Json Element | http://example.com/test.json | $.foo[*] |
      * | Find Json Element | {element: [ {param:hello}, {foo:bar} ] } | $.element[*] |
+     * | Find Json Element | {element: [ {param:hello}, {foo:bar} ] } | $.element[*] | POST | {hello: world} | application/json |
      * 
      */
     @RobotKeyword
@@ -319,6 +326,7 @@ public class JsonPathLibrary {
      * Example:
      * | Json Should Have Element Count | http://example.com/test.json | $.foo[*] | 3 |
      * | Json Should Have Element Count | {element: [ {param:hello}, {foo:bar} ] } | $.element[*] | 2 |
+     * | Json Should Have Element Count | {element: [ {param:hello}, {foo:bar} ] } | $.element[*] | 2 | POST | {hello: world} | application/json |
      * 
      */
     @SuppressWarnings("unchecked")
