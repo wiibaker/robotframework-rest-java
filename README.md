@@ -17,7 +17,7 @@ your pom.xml:
 	<dependency>
 		<groupId>org.wuokko.robot</groupId>
 		<artifactId>robotframework-rest-java</artifactId>
-		<version>0.2.1</version>
+		<version>0.3</version>
 	</dependency>
 
 To use the library in your Robot Framework test, add the following in Settings part
@@ -68,7 +68,7 @@ You can try it by running
 Dependencies
 ------------
 
-You need following dependencies to use this library
+You need following dependencies to use this library (not up to date)
 
 	com.jayway.jsonpath:json-path-assert:jar:0.9.1
 	org.slf4j:slf4j-api:jar:1.7.5
