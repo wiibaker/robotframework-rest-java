@@ -11,8 +11,7 @@ Usage
 The easiest way to use this library is with Robot Framework Maven Plugin
 See http://robotframework.org/MavenPlugin/ for instructions. 
 
-To use this library by adding the following dependencies to 
-your pom.xml:
+To use this library, add the following dependency to your pom.xml:
 	
 	<dependency>
 		<groupId>org.wuokko.robot</groupId>
@@ -38,6 +37,18 @@ You have following keywords to use
 	Json Should Have Element Count	JSON/URI	JSONPath	Count
 
 You can pass either URI to the JSON (ie. your REST api output) or the JSON as string.
+
+Additionally you can pass additional variables `method`, `data` or `contentType`. By default the `method` is set as `GET`. The `contentType` refers to the content type of the `data`, ex. `application/xml`.
+
+	Find Json Element		JSON/URI	JSONPath	METHOD		DATA	CONTENTTYPE
+	
+Example:
+
+	Find Json Element		http://example.com/test.json	$.hello	POST	<test>hello<test/>	application/xml
+
+or more common example
+
+	Json Element Should Match		http://example.com/test.json	$.message		hello world	POST	{person: 'world'}
 
 You can also add system property "use.uri.cache" to use simple in-memory cache
 to cache the results of the URI requests. ie
